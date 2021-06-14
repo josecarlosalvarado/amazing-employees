@@ -17,7 +17,7 @@
             {% for person in people %}
             <tr>
                 <td>{{ person.name }}</td>
-                <td>{{ person.email }}</td>
+                <td><a href="{{ path('default_show', {id: loop.index0}) }}">{{ person.email }}</a></td>
                 <td>{{ person.city }}</td>
             </tr>
             {% endfor %}

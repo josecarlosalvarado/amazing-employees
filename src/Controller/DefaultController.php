@@ -6,6 +6,7 @@ namespace App\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -31,6 +32,7 @@ class DefaultController extends AbstractController
      */
     public function index(): Response
     {
+    
         // Una acción siempre debe devolver una respesta.
         // Por defecto deberá ser un objeto de la clase,
         // Symfony\Component\HttpFoundation\Response
@@ -68,6 +70,23 @@ class DefaultController extends AbstractController
      */
     public function indexJson(): JsonResponse {
         return $this->json(self::PEOPLE);
+    }
+
+
+    /**
+     * @Route(
+     * "/default/{id}",
+     *  name="default_show")
+     * requirements= {
+     *      "id": "[0-3]"
+     *      * }
+     */
+    public function show(int $id): Response {
+
+        var_dump($id); die();
+        return $this->render('default/index.html.twig', [
+            'people' => self::PEOPLE
+        ]);
     }
 
 }
