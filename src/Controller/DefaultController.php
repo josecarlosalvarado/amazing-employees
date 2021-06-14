@@ -89,4 +89,17 @@ class DefaultController extends AbstractController
         ]);
     }
 
+   
+    /**
+     * @Route("/redirect-to-home", name="default_redirect_to_home")
+     */
+    public function redirectToHome(): Response {
+        //redirigir a la URL /
+        return $this->redirect('/');
+
+        //redirigir a ruta urilizando su nombre
+        // return $this->redirectToHome('default_show', ['id' => 1]);
+    }
+
+
 }
