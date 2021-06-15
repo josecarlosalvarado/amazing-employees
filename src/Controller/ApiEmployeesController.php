@@ -7,7 +7,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route("/api/employees", name="api_employees_")
+ * @Route("/api/amazing-employees", name="api_employees_")
  */
 class ApiEmployeesController extends AbstractController
 {
