@@ -24,7 +24,7 @@ class DefaultController extends AbstractController
      * El primer parámetro de Route es la URL a la que queremos asociar la acción.
      * El segundo parámetro de Route es el nombre que queremos dar a la ruta.
      */
-    public function index(EmployeeRepository $employeeRepository): Response
+    public function index( Request $request, EmployeeRepository $employeeRepository): Response
     {
     
         // Una acción siempre debe devolver una respesta.
@@ -41,7 +41,13 @@ class DefaultController extends AbstractController
         // $repo->findAll();
 
         // $people = $this->getDoctrine()->getRepository(Employee::class)->findAll();
-        $people = $employeeRepository->findAll();
+
+        $order = [];
+
+        if($request->query->has('orderBy')) {
+            $order[$request->query->get('orderBy')] = $request->query->get('orderDir', 'ASC');
+        }
+        $people = $employeeRepository->findBy([], $order); // Employee::class = App\Entity\Employee
         return $this->render('default/index.html.twig', [
             'people' => $people
         ]);
@@ -82,6 +88,10 @@ class DefaultController extends AbstractController
      *      "id": "[1-4]"
      *      * }
      */
+    //la tecnica ParamConverte inyecta directamente,
+    //un onjeto del tipo indicado como parametro
+    //intentando hacer un mach del parametro de la ruta
+    //con alguna de las propiedades del objeto requerido.
     public function show(Employee $employee): Response {
         return $this->render('default/show.html.twig', [
             'person' => $employee

@@ -9,7 +9,7 @@
         <thead>
             <tr>
                 <th>Nombre</th>
-                <th>Email</th>
+                <th>Email <a href="{{ path('default_index', { orderBy: 'email', orderDir: 'DESC'}) }}">⬆</a>&nbsp;<a href="{{ path('default_index', { orderBy: 'email', orderDir: 'ASC'}) }}">⬇</a></th>
                 <th>Localidad</th>
                 <th>acciones</th>                 
             </tr>
