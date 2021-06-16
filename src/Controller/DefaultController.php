@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Entity\Employee;
+use App\Repository\EmployeeRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,7 +24,7 @@ class DefaultController extends AbstractController
      * El primer parámetro de Route es la URL a la que queremos asociar la acción.
      * El segundo parámetro de Route es el nombre que queremos dar a la ruta.
      */
-    public function index(): Response
+    public function index(EmployeeRepository $employeeRepository): Response
     {
     
         // Una acción siempre debe devolver una respesta.
@@ -39,7 +40,8 @@ class DefaultController extends AbstractController
         // $repo = $orm->getRepository(Employee::class); 
         // $repo->findAll();
 
-        $people = $this->getDoctrine()->getRepository(Employee::class)->findAll();
+        // $people = $this->getDoctrine()->getRepository(Employee::class)->findAll();
+        $people = $employeeRepository->findAll();
         return $this->render('default/index.html.twig', [
             'people' => $people
         ]);
@@ -65,8 +67,9 @@ class DefaultController extends AbstractController
      * buscará la acción coincidente con la ruta indicada
      * y mostrará la información asociada.
      */
-    public function indexJson(Request $request): JsonResponse {
-        $data = $request->query->has('id') ? [] : [];
+    public function indexJson(Request $request, EmployeeRepository $employeeRepository): JsonResponse {
+        // $data = $request->query->has('id') ? [] : [];
+        $data = $request->query->has('id') ? $employeeRepository->find($request->query->get('id')) : $employeeRepository->findAll();
         return $this->json($data);
     }
 
@@ -76,14 +79,12 @@ class DefaultController extends AbstractController
      * "/default/{id}",
      *  name="default_show")
      * requirements= {
-     *      "id": "[0-3]"
+     *      "id": "[1-4]"
      *      * }
      */
-    public function show(int $id): Response {
-
+    public function show(Employee $employee): Response {
         return $this->render('default/show.html.twig', [
-            'id' => $id,
-            'person' => []
+            'person' => $employee
         ]);
     }
 

@@ -18,12 +18,12 @@
             {% for person in people %}
             <tr>
                 <td>{{ person.name }}</td>
-                <td><a href="{{ path('default_show', {id: loop.index0}) }}">{{ person.email }}</a></td>
+                <td><a href="{{ path('default_show', {id: person.id}) }}">{{ person.email }}</a></td>
                 <td>{{ person.city }}</td>
                   <td>
                     <ul>
-                        <li><a href="{{ path('default_show', { id: loop.index0 }) }}">Ver en formato HTML</a></li>
-                        <li><a href="{{ path('default_index_json', { id: loop.index0, _format: 'json' }) }}">Ver en formato JSON</a></li>
+                        <li><a href="{{ path('default_show', { id: person.id }) }}">Ver en formato HTML</a></li>
+                        <li><a href="{{ path('default_index_json', { id: person.id, _format: 'json' }) }}">Ver en formato JSON</a></li>
                     </ul>
                 </td>
             </tr>
