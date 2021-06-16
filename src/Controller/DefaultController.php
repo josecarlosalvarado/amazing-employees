@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Entity\Employee;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -34,9 +35,13 @@ class DefaultController extends AbstractController
         // https://twig.symfony.com/doc/3.x/templates.html
 
 
+        // $orm = $this->getDoctrine();
+        // $repo = $orm->getRepository(Employee::class); 
+        // $repo->findAll();
 
+        $people = $this->getDoctrine()->getRepository(Employee::class)->findAll();
         return $this->render('default/index.html.twig', [
-            'people' => []
+            'people' => $people
         ]);
     }
     /**
