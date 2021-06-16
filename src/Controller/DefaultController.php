@@ -14,15 +14,7 @@ use Symfony\Component\Routing\Annotation\Route;
 // que pone a disposición nuestra multitud de características.
 class DefaultController extends AbstractController
 {
-
-    const PEOPLE = [
-        ['name' => 'Carlos', 'email' => 'carlos@correo.com', 'age' => 30, 'city' => 'Benalmádena'],
-        ['name' => 'Carmen', 'email' => 'carmen@correo.com', 'age' => 25, 'city' => 'Fuengirola'],
-        ['name' => 'Carmelo', 'email' => 'carmelo@correo.com', 'age' => 35, 'city' => 'Torremolinos'],
-        ['name' => 'Carolina', 'email' => 'carolina@correo.com', 'age' => 38, 'city' => 'Málaga'],        
-    ];
     
-
     /**
      * @Route("/default", name="default_index")
      * 
@@ -44,7 +36,7 @@ class DefaultController extends AbstractController
 
 
         return $this->render('default/index.html.twig', [
-            'people' => self::PEOPLE
+            'people' => []
         ]);
     }
     /**
@@ -69,7 +61,7 @@ class DefaultController extends AbstractController
      * y mostrará la información asociada.
      */
     public function indexJson(Request $request): JsonResponse {
-        $data = $request->query->has('id') ? self::PEOPLE[$request->query->has('id')] : self::PEOPLE;
+        $data = $request->query->has('id') ? [] : [];
         return $this->json($data);
     }
 
@@ -86,7 +78,7 @@ class DefaultController extends AbstractController
 
         return $this->render('default/show.html.twig', [
             'id' => $id,
-            'person' => self::PEOPLE[$id]
+            'person' => []
         ]);
     }
 
