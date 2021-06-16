@@ -19,6 +19,44 @@ class EmployeeRepository extends ServiceEntityRepository
         parent::__construct($registry, Employee::class);
     }
 
+
+    public function findByTermStrict(string $term)
+    {
+        $queryBuilder = $this->createQueryBuilder('e');
+        // SELECT * FROM employee e;
+        
+        $queryBuilder->where('e.name = :term');  
+         // SELECT * FROM employee e WHERE e.name = :term 
+
+        $queryBuilder->orWhere('e.email = :term');
+
+        $queryBuilder->orWhere('e.city = :term');
+
+        $queryBuilder->setParameter('term', $term);
+        $queryBuilder->orderBy('e.id', 'ASC');
+
+        $query = $queryBuilder->getQuery();
+
+        return $query->getResult();
+    }
+
+    public function findByTerm(string $term) {
+        $queryBuilder = $this->createQueryBuilder('e');
+
+        $queryBuilder->where(
+            $queryBuilder->expr()->orX(
+                $queryBuilder->expr()->like('e.name' , ':term'),
+                $queryBuilder->expr()->like('e.email' , ':term'),
+                $queryBuilder->expr()->like('e.city' , ':term')
+            )
+        )
+        ->setParameter('term', '%'.$term.'%')
+        ->orderBy('e.id', 'ASC');
+
+        return $queryBuilder->getQuery()->getResult();
+    }
+
+
     // /**
     //  * @return Employee[] Returns an array of Employee objects
     //  */
