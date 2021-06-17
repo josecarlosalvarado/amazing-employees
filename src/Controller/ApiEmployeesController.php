@@ -99,11 +99,25 @@ class ApiEmployeesController extends AbstractController
      *          "id": "\d+" 
      * })
      */
-    public function update(int $id): Response {
-        return  $this->json([
-            'method' => 'PUT',
-            'description' => 'Actualiza un recurso empleado con id:'.$id.'.',
+    public function update(
+        Employee $employee,
+        EntityManagerInterface $entityManager,
+        Request $request
+    ): Response {
 
+        $data = $request->request; //recupero los datos de la solicitud
+
+        $employee->setName($data->get('name'));
+        $employee->setEmail($data->get('email'));
+        $employee->setAge($data->get('age'));
+        $employee->setCity($data->get('city'));
+        $employee->setPhone($data->get('phone'));
+
+        $entityManager->persist($employee);
+        $entityManager->flush();
+
+        return  $this->json([
+            
         ]);
     }
 
