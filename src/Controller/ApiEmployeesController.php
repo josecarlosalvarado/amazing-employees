@@ -2,6 +2,10 @@
 
 namespace App\Controller;
 
+use App\Entity\Employee;
+use Symfony\Component\HttpFoundation\Request;
+use App\Repository\EmployeeRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -18,13 +22,17 @@ class ApiEmployeesController extends AbstractController
      *      methods={"GET"}
      * )
      */
-    public function index(): Response
+    public function index(Request $request, EmployeeRepository $employeeRepository): Response
     {
-        return $this->json([
-            'method' => 'CGET',
-            'description' => 'Devuelve el listado del recurso empleados.',
-        ]);
+        if($request->query->has('term')) {
+            $people = $employeeRepository->findByTerm($request->query->get('term'));
+
+            return $this->json($people);
+        }
+
+        return $this->json($employeeRepository->findAll());
     }
+
 
     /**
      * @Route(
@@ -36,12 +44,9 @@ class ApiEmployeesController extends AbstractController
      *      }
      * )
      */
-    public function show(int $id): Response
+    public function show(Employee $employee): Response
     {
-        return $this->json([
-            'method' => 'GET',
-            'description' => 'Devuelve un solo recurso empleado.',
-        ]);
+        return $this->json($employee);
     }
 
     /**
@@ -51,18 +56,44 @@ class ApiEmployeesController extends AbstractController
      *      methods={"POST"}
      * )
      */
-    public function add(): Response {
-        return  $this->json([
-            'method' => 'POST',
-            'description' => 'Crea un recurso empleado.',
+    public function add(
+        Request $request,
+        EntityManagerInterface $entityManager): Response
+    {
+ 
+        $data = $request->request; // nos treameos los datos
+        
+        $employee = new Employee();//creamos un nuevo Employee
 
-        ]);
+        $employee->setName($data->get('name'));
+        $employee->setEmail($data->get('email'));
+        $employee->setAge($data->get('age'));
+        $employee->setCity($data->get('city'));
+        $employee->setPhone($data->get('phone'));
+
+        $entityManager->persist($employee); // persiste en memoria hasta enviarlo a la base de datos como un git commit
+        $entityManager->flush();//envia los datos de $entityManager en la base de datos como un git push
+
+        dump($employee);
+
+        return $this->json(
+            $employee,
+            Response::HTTP_CREATED,
+            [
+                'Location' => $this->generateUrl(
+                    'api_employees_get',
+                    [
+                        'id' => $employee->getId()
+                    ]
+                )
+            ]
+        );
     }
 
     /**
      * @Route(
      * "/{id}",
-     *  name="update",
+     *  name="update",  
      *  methods={"PUT"},
      *   requirements={
      *          "id": "\d+" 
@@ -85,11 +116,15 @@ class ApiEmployeesController extends AbstractController
      *          "id": "\d+" 
      * })
      */
-    public function DeleteEmpleado(int $id): Response {
-        return  $this->json([
-            'method' => 'DELETE',
-            'description' => 'borra un recurso empleado con id:'.$id.'.',
+    public function DeleteEmpleado(
+        Employee $employee,
+        EntityManagerInterface $entityManager
+    ): Response {
 
-        ]);
+        dump($employee);
+
+        $entityManager->remove($employee);
+        $entityManager->flush();
+        return  $this->json(null, Response::HTTP_NO_CONTENT);
     }
 }
