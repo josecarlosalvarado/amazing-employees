@@ -6,6 +6,7 @@ namespace App\Controller;
 
 use App\Entity\Employee;
 use App\Repository\EmployeeRepository;
+use App\Service\EmployeeNormalize;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -81,7 +82,13 @@ class DefaultController extends AbstractController
      * buscará la acción coincidente con la ruta indicada
      * y mostrará la información asociada.
      */
-    public function indexJson(Request $request, EmployeeRepository $employeeRepository): JsonResponse {
+    public function indexJson(
+        Request $request,
+        EmployeeRepository $employeeRepository,
+        EmployeeNormalize $employeeNormalize
+
+    ): JsonResponse {
+
         // $data = $request->query->has('id') ? [] : [];
         $result = $request->query->has('id') ?
         $employeeRepository->find($request->query->get('id')) :
@@ -90,11 +97,11 @@ class DefaultController extends AbstractController
         $data = [];
 
         if ($result instanceof Employee) {
-            array_push($data, $this->normalizeEmployee($result));
+            array_push($data,$employeeNormalize->employeeNormalize($result));
         }
 
         foreach ($result as $employee) {
-            array_push($data, $this->normalizeEmployee($employee));
+            array_push($data, $employeeNormalize->employeeNormalize($employee));
         }
 
         return $this->json($data);
@@ -131,6 +138,13 @@ class DefaultController extends AbstractController
         // return $this->redirectToHome('default_show', ['id' => 1]);
     }
 
+    /**
+     * Normalize an employee.
+     * 
+     * @param Employee $employee
+     * 
+     * @return array|null
+     */
     private function normalizeEmployee (Employee $employee): ?array {
         $projects = [];
 
