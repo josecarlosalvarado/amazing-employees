@@ -3,11 +3,16 @@
 namespace App\Entity;
 
 use App\Repository\EmployeeRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
  * @ORM\Entity(repositoryClass=EmployeeRepository::class)
+ * 
+ * @UniqueEntity("email")
  */
 class Employee
 {
@@ -21,12 +26,12 @@ class Employee
     /**
      * @ORM\Column(type="string", length=128)
      * 
-     * @Assert\NotBlanck
+     * @Assert\NotBlank
      */
     private $name;
 
     /**
-     * @ORM\Column(type="string", length=128)
+     * @ORM\Column(type="string", length=128, unique=true)
      * 
      * @Assert\Email(
      *  message = "El email {{ value }} no tiene un formato valido"
@@ -37,7 +42,7 @@ class Employee
     /**
      * @ORM\Column(type="smallint")
      * 
-     * @Assert\GreatherthanOrequal(
+     * @Assert\GreaterThanOrEqual(
      *      value = 18,
      *      message = "el empleado debe ser mayor de edad."
      * )
@@ -53,6 +58,22 @@ class Employee
      * @ORM\Column(type="string", length=12)
      */
     private $phone;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Department::class, inversedBy="employees")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $department;
+
+    /**
+     * @ORM\ManyToMany(targetEntity=Project::class, mappedBy="employees")
+     */
+    private $projects;
+
+    public function __construct()
+    {
+        $this->projects = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -115,6 +136,45 @@ class Employee
     public function setPhone(string $phone): self
     {
         $this->phone = $phone;
+
+        return $this;
+    }
+
+    public function getDepartment(): ?Department
+    {
+        return $this->department;
+    }
+
+    public function setDepartment(?Department $department): self
+    {
+        $this->department = $department;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Project[]
+     */
+    public function getProjects(): Collection
+    {
+        return $this->projects;
+    }
+
+    public function addProject(Project $project): self
+    {
+        if (!$this->projects->contains($project)) {
+            $this->projects[] = $project;
+            $project->addEmployee($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProject(Project $project): self
+    {
+        if ($this->projects->removeElement($project)) {
+            $project->removeEmployee($this);
+        }
 
         return $this;
     }

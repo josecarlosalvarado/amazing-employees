@@ -14,22 +14,24 @@
     <table>
         <thead>
             <tr>
-                <th>Nombre</th>
+                <th>Nombre <a href="{{ path('default_index', { orderBy: 'name', orderDir: 'DESC'}) }}">⬆</a>&nbsp;<a href="{{ path('default_index', { orderBy: 'name', orderDir: 'ASC'}) }}">⬇</a></th>
                 <th>Email <a href="{{ path('default_index', { orderBy: 'email', orderDir: 'DESC'}) }}">⬆</a>&nbsp;<a href="{{ path('default_index', { orderBy: 'email', orderDir: 'ASC'}) }}">⬇</a></th>
-                <th>Localidad</th>
-                <th>acciones</th>                 
+                <th>Localidad <a href="{{ path('default_index', { orderBy: 'city', orderDir: 'DESC'}) }}">⬆</a>&nbsp;<a href="{{ path('default_index', { orderBy: 'city', orderDir: 'ASC'}) }}">⬇</a></th>
+                <th>Departamento</th>
+                <th>Acciones</th>
             </tr>
         </thead>
         <tbody>
             {% for person in people %}
             <tr>
                 <td>{{ person.name }}</td>
-                <td><a href="{{ path('default_show', {id: person.id}) }}">{{ person.email }}</a></td>
+                <td>{{ person.email }}</td>
                 <td>{{ person.city }}</td>
-                  <td>
+                <td>{{ person.department.name }}</td>
+                <td>
                     <ul>
                         <li><a href="{{ path('default_show', { id: person.id }) }}">Ver en formato HTML</a></li>
-                        <li><a href="{{ path('default_index_json', { id: person.id, _format: 'json' }) }}">Ver en formato JSON</a></li>
+                        <li><a href="{{ path('default_index_json', { _format: 'json',  id: person.id }) }}">Ver en formato JSON</a></li>
                     </ul>
                 </td>
             </tr>
