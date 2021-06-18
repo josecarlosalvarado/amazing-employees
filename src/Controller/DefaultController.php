@@ -83,7 +83,20 @@ class DefaultController extends AbstractController
      */
     public function indexJson(Request $request, EmployeeRepository $employeeRepository): JsonResponse {
         // $data = $request->query->has('id') ? [] : [];
-        $data = $request->query->has('id') ? $employeeRepository->find($request->query->get('id')) : $employeeRepository->findAll();
+        $result = $request->query->has('id') ?
+        $employeeRepository->find($request->query->get('id')) :
+        $employeeRepository->findAll();
+
+        $data = [];
+
+        if ($result instanceof Employee) {
+            array_push($data, $this->normalizeEmployee($result));
+        }
+
+        foreach ($result as $employee) {
+            array_push($data, $this->normalizeEmployee($employee));
+        }
+
         return $this->json($data);
     }
 
@@ -116,6 +129,28 @@ class DefaultController extends AbstractController
 
         //redirigir a ruta urilizando su nombre
         // return $this->redirectToHome('default_show', ['id' => 1]);
+    }
+
+    private function normalizeEmployee (Employee $employee): ?array {
+        $projects = [];
+
+        foreach($employee->getProjects() as $project) {
+            array_push($projects, [
+                'id' => $project->getId(),    
+                'name' => $project->getName(),    
+            ]);
+        }
+
+        return [
+            'name' => $employee->getName(),
+            'email' => $employee->getEmail(),
+            'city' => $employee->getCity(),
+            'department' => [
+                'id' => $employee->getDepartment()->getId(),
+                'name' => $employee->getDepartment()->getName(),
+            ],
+            'projects' => $projects
+        ];
     }
 
 

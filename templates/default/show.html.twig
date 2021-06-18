@@ -6,12 +6,14 @@
 
 {% block body %}
     <h1>Show</h1>
-    <table>
+    <table border="1">
         <thead>
             <tr>
                 <th>Nombre</th>
                 <th>Email</th>
-                <th>Localidad</th>            
+                <th>Localidad</th> 
+                <th>Departamento</th>
+                <th>Proyectos</th>           
             </tr>
         </thead>
         <tbody>
@@ -19,6 +21,8 @@
                 <td>{{ person.name }}</td>
                 <td><a href="{{ path('default_show', {id: person.id}) }}">{{ person.email }}</a></td>
                 <td>{{ person.city }}</td>
+                 <td>{{ person.department.name }}</td>
+                <td>{{ person.projects|join(',')}}</td>
             </tr>
         </tbody>
     </table>
