@@ -52,6 +52,10 @@ class AdminUser implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    public function getUsername()
+    {
+        return $this->getUserIdentifier();
+    }
     /**
      * A visual identifier that represents this user.
      *
