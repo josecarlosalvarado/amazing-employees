@@ -4,6 +4,11 @@
             <li> <a href="{{ path('default_redirect_to_home') }}">Pagina de inicio</a></li>
             <li> <a href="{{ path('default_index') }}">Empleados html</a></li>
             <li> <a href="{{ path('default_index_json', {_format: 'json'}) }}">Empleados json</a></li>
+            {% if app.user %}
+                <li>
+                    <a href="{{ path('app_logout') }}">Cerrar sesión</a>
+                </li>
+            {% endif %}
         </ul>
     </nav>
 </header>
