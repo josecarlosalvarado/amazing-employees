@@ -42,7 +42,7 @@ class EmployeeRepository extends ServiceEntityRepository
 
     public function findByTerm(string $term) {
         $queryBuilder = $this->createQueryBuilder('e');
-
+        
         $queryBuilder->where(
             $queryBuilder->expr()->orX(
                 $queryBuilder->expr()->like('e.name' , ':term'),

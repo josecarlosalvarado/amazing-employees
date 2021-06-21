@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Employee;
+use App\Repository\DepartmentRepository;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\EmployeeRepository;
 use App\Service\EmployeeNormalize;
@@ -39,7 +40,7 @@ class ApiEmployeesController extends AbstractController
             foreach($result as $employee) {
                 $data[] = $employeeNormalize->employeeNormalize($employee);
             }
-            
+
             return $this->json($data);
         }
 
@@ -70,29 +71,32 @@ class ApiEmployeesController extends AbstractController
         return $this->json($employeeNormalize->employeeNormalize($employee));
     }
 
-    /**
+       /**
      * @Route(
      *      "",
      *      name="post",
      *      methods={"POST"}
      * )
      */
-    public function add(
+    public function add (
         Request $request,
         EntityManagerInterface $entityManager,
-        ValidatorInterface $validator
-    ): Response
-    {
- 
-        $data = $request->request; // nos treameos los datos
+        ValidatorInterface $validator,
+        DepartmentRepository $departmentRepository,
+        EmployeeNormalize $employeeNormalize
+    ): Response {
+        $data = $request->request;
+
+        $department = $departmentRepository->find($data->get('department_id'));
         
-        $employee = new Employee();//creamos un nuevo Employee
+        $employee = new Employee();
 
         $employee->setName($data->get('name'));
         $employee->setEmail($data->get('email'));
         $employee->setAge($data->get('age'));
         $employee->setCity($data->get('city'));
         $employee->setPhone($data->get('phone'));
+        $employee->setDepartment($department);
 
         $errors = $validator->validate($employee);
         
@@ -113,13 +117,15 @@ class ApiEmployeesController extends AbstractController
                 Response::HTTP_BAD_REQUEST);
         } 
 
-        $entityManager->persist($employee); // persiste en memoria hasta enviarlo a la base de datos como un git commit
-        $entityManager->flush();//envia los datos de $entityManager en la base de datos como un git push
+        $entityManager->persist($employee);
 
-        dump($employee);
+        // $employee no tiene id.
 
+        $entityManager->flush();
+
+        //header (cabecera)
         return $this->json(
-            $employee,
+            $employeeNormalize->employeeNormalize($employee),
             Response::HTTP_CREATED,
             [
                 'Location' => $this->generateUrl(
