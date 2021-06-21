@@ -9,8 +9,11 @@ use App\Repository\EmployeeRepository;
 use App\Service\EmployeeNormalize;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\String\Slugger\SluggerInterface;
+use Symfony\Component\Validator\Constraints\Unique;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -30,14 +33,13 @@ class ApiEmployeesController extends AbstractController
         EmployeeRepository $employeeRepository,
         EmployeeNormalize $employeeNormalize
 
-    ): Response
-    {
-        if($request->query->has('term')) {
+    ): Response {
+        if ($request->query->has('term')) {
             $result = $employeeRepository->findByTerm($request->query->get('term'));
 
             $data = [];
 
-            foreach($result as $employee) {
+            foreach ($result as $employee) {
                 $data[] = $employeeNormalize->employeeNormalize($employee);
             }
 
@@ -48,7 +50,7 @@ class ApiEmployeesController extends AbstractController
 
         $data = [];
 
-        foreach($result as $employee) {
+        foreach ($result as $employee) {
             $data[] = $employeeNormalize->employeeNormalize($employee);
         }
 
@@ -71,24 +73,28 @@ class ApiEmployeesController extends AbstractController
         return $this->json($employeeNormalize->employeeNormalize($employee));
     }
 
-       /**
+    /**
      * @Route(
      *      "",
      *      name="post",
      *      methods={"POST"}
      * )
      */
-    public function add (
+    public function add(
         Request $request,
         EntityManagerInterface $entityManager,
         ValidatorInterface $validator,
         DepartmentRepository $departmentRepository,
-        EmployeeNormalize $employeeNormalize
+        EmployeeNormalize $employeeNormalize,
+        SluggerInterface $slug,
     ): Response {
         $data = $request->request;
 
+        dump($data);
+        dump($request->files);
+
         $department = $departmentRepository->find($data->get('department_id'));
-        
+
         $employee = new Employee();
 
         $employee->setName($data->get('name'));
@@ -98,8 +104,31 @@ class ApiEmployeesController extends AbstractController
         $employee->setPhone($data->get('phone'));
         $employee->setDepartment($department);
 
+        if ($request->files->has('avatar')) {
+            $avatarFile = $request->files->get('avatar');
+
+            $avataroriginalFileName = pathinfo($avatarFile->getClientOriginalName(), PATHINFO_FILENAME);
+            dump($avataroriginalFileName);
+
+            $safeFileName = $slug->slug($avataroriginalFileName);
+            $avatarNewfileName = $safeFileName . '-' . uniqid() . '.' . $avatarFile->guessExtension();
+            dump($avatarNewfileName);
+
+            try {
+                $avatarFile->move(
+                    $request->server->get('DOCUMENT_ROOT') . DIRECTORY_SEPARATOR . 'employee/avatar',
+                    $avatarNewfileName
+                );
+            } catch (FileException $e) {
+                throw new \Exception($e->getMessage());
+            }
+
+            $employee->setAvatar($avatarNewfileName);
+        }
+
+
         $errors = $validator->validate($employee);
-        
+
         if (count($errors) > 0) {
             $dataErrors = [];
 
@@ -108,14 +137,16 @@ class ApiEmployeesController extends AbstractController
                 $dataErrors[] = $error->getMessage();
             }
 
-            return $this->json([
-                'status' => 'error',
-                'data' => [
-                    'errors' => $dataErrors
+            return $this->json(
+                [
+                    'status' => 'error',
+                    'data' => [
+                        'errors' => $dataErrors
                     ]
                 ],
-                Response::HTTP_BAD_REQUEST);
-        } 
+                Response::HTTP_BAD_REQUEST
+            );
+        }
 
         $entityManager->persist($employee);
 
@@ -164,12 +195,10 @@ class ApiEmployeesController extends AbstractController
         $entityManager->persist($employee);
         $entityManager->flush();
 
-        return  $this->json([
-            
-        ]);
+        return  $this->json([]);
     }
 
-        /**
+    /**
      * @Route(
      * "/{id}",
      *  name="delete",

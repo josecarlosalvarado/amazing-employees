@@ -3,8 +3,15 @@
 namespace App\Service;
 
 use App\Entity\Employee;
+use Symfony\Component\HttpFoundation\UrlHelper;
 
 class EmployeeNormalize {
+    private $urlHelper;
+    public function __construct(UrlHelper $constructorDeUrl)
+    {
+        $this->urlHelper = $constructorDeUrl;
+    }
+
     /**
      * Normalize an employee.
      * 
@@ -22,6 +29,11 @@ class EmployeeNormalize {
             ]);
         }
 
+        $avatar = '';
+        if($employee->getAvatar()) {
+            $avatar =  $this->urlHelper->getAbsoluteUrl('/employee/avatar/'.$employee->getAvatar());
+        }
+
         return [
             'name' => $employee->getName(),
             'email' => $employee->getEmail(),
@@ -30,7 +42,8 @@ class EmployeeNormalize {
                 'id' => $employee->getDepartment()->getId(),
                 'name' => $employee->getDepartment()->getName(),
             ],
-            'projects' => $projects
+            'projects' => $projects,
+            'avatar' => $avatar
         ];
     }
 }
