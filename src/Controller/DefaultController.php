@@ -121,6 +121,8 @@ class DefaultController extends AbstractController
     //intentando hacer un mach del parametro de la ruta
     //con alguna de las propiedades del objeto requerido.
     public function show(Employee $employee): Response {
+        // $this->isGranted('ROLE_ADMIN');
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
         return $this->render('default/show.html.twig', [
             'person' => $employee
         ]);
